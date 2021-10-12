@@ -1,0 +1,76 @@
+{
+  "project_info": {
+    "project_number": "648250836341",
+    "project_id": "skripsi-ecom-flutter",
+    "storage_bucket": "skripsi-ecom-flutter.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:648250836341:android:b0be3d81e918b873897f3c",
+        "android_client_info": {
+          "package_name": "com.example.podokma_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "648250836341-qtirm5umemj05c3hrg194583j4r4vuhk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.podokma_app",
+            "certificate_hash": "10e958a5f05b29d2165fac1e2c104405d8e612a0"
+          }
+        },
+        {
+          "client_id": "648250836341-t6phk1t0u001je47j0hgeoro12mog5uo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBmqZNgYj3Dk5B0EyohdtXkhAoNg6dbiow"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "648250836341-t6phk1t0u001je47j0hgeoro12mog5uo.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:648250836341:android:555eb06e8da01805897f3c",
+        "android_client_info": {
+          "package_name": "com.example.podokma_ecom"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "648250836341-t6phk1t0u001je47j0hgeoro12mog5uo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBmqZNgYj3Dk5B0EyohdtXkhAoNg6dbiow"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "648250836341-t6phk1t0u001je47j0hgeoro12mog5uo.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
