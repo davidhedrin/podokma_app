@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:podokma_ecom/providers/auth_provider.dart';
 import 'package:podokma_ecom/providers/location_provider.dart';
 import 'package:podokma_ecom/screens/homeScreen.dart';
+import 'package:podokma_ecom/screens/login_screen.dart';
 import 'package:podokma_ecom/screens/map_screen.dart';
 import 'screens/splash_screen.dart';
 import 'screens/welcome_screen.dart';
@@ -42,6 +43,7 @@ class MyApp extends StatelessWidget {
         HomeScreen.id : (context) => HomeScreen(),
         WelcomeScreen.id : (context) => WelcomeScreen(),
         MapScreen.id : (context) => MapScreen(),
+        LoginScreen.id : (context) => LoginScreen(),
       },
     );
   }

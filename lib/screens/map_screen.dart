@@ -1,6 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:podokma_ecom/providers/auth_provider.dart';
 import 'package:podokma_ecom/providers/location_provider.dart';
+import 'package:podokma_ecom/screens/homeScreen.dart';
+import 'package:podokma_ecom/screens/login_screen.dart';
 import 'package:provider/provider.dart';
 
 class MapScreen extends StatefulWidget {
@@ -17,10 +21,31 @@ class _MapScreenState extends State<MapScreen> {
   late LatLng currentLocation;
   late GoogleMapController _mapController;
   bool _locating = false;
+  bool _loggedIn = false;
+  late User? user;
+
+  @override
+  void initState() {
+    //check user logged or not
+    getCurrentUser();
+    super.initState();
+  }
+
+  void getCurrentUser(){
+    setState(() {
+      user = FirebaseAuth.instance.currentUser;
+    });
+    if(user!=null){
+      setState(() {
+        _loggedIn = true;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final locationData = Provider.of<LocationProvider>(context);
+    final _auth = Provider.of<AuthProvider>(context);
 
     setState(() {
       currentLocation = LatLng(locationData.latitude!, locationData.longitude!);
@@ -101,7 +126,20 @@ class _MapScreenState extends State<MapScreen> {
                           absorbing: _locating ? true: false,
                           // ignore: deprecated_member_use
                           child: FlatButton(
-                            onPressed: (){},
+                            onPressed: (){
+                              if(_loggedIn==false){
+                                Navigator.pushNamed(context, LoginScreen.id);
+                              }else{
+                                _auth.updateUser(
+                                  id: user!.uid,
+                                  number: user!.phoneNumber.toString(),
+                                  latitude: locationData.latitude,
+                                  longitude: locationData.longitude,
+                                  address: locationData.selectedAddress.addressLine,
+                                );
+                                Navigator.pushNamed(context, HomeScreen.id);
+                              }
+                            },
                             color: _locating ? Colors.grey : Theme.of(context).primaryColor,
                             child: Text('Confirm Location', style: TextStyle(color: Colors.white),),
                           ),

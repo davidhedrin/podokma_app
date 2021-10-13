@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:podokma_ecom/providers/location_provider.dart';
 import 'package:podokma_ecom/screens/homeScreen.dart';
 import 'package:podokma_ecom/services/user_services.dart';
 
@@ -12,8 +13,9 @@ class AuthProvider with ChangeNotifier {
   String error = '';
   UserServices _userServices = UserServices();
   bool loading = false;
+  LocationProvider locationData = LocationProvider();
 
-  Future<void> verifyPhone(BuildContext context, String number) async {
+  Future<void> verifyPhone({required BuildContext context, required String number, double? latitude, double? longitude, String? address}) async {
     this.loading = true;
     notifyListeners();
     final PhoneVerificationCompleted verificationCompleted =
@@ -34,7 +36,7 @@ class AuthProvider with ChangeNotifier {
     final PhoneCodeSent smsOtpSend = (String verId, int? resendToken) async {
       this.verificationId = verId;
       //open dialog to enter OTP
-      smsOtpDialog(context, number);
+      smsOtpDialog(context, number, latitude, longitude, address);
     };
 
     try {
@@ -54,7 +56,7 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  Future<void> smsOtpDialog(BuildContext context, String number) async {
+  Future<void> smsOtpDialog(BuildContext context, String number, double? latitude, double? longitude, String? address) async {
     return showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -94,14 +96,16 @@ class AuthProvider with ChangeNotifier {
                     );
 
                     final User? user =  (await _auth.signInWithCredential(credential)).user;
-
-                    //create user data to firebase after success register
-                    _createUser(id: user!.uid, number: user.phoneNumber.toString());
+                    if(locationData.selectedAddress!=null){
+                      updateUser(id: user!.uid, number: user.phoneNumber!, latitude: locationData.latitude, longitude: locationData.longitude, address: locationData.selectedAddress.addressLine);
+                    }else{
+                      //create user data to firebase after success register
+                      _createUser(id: user!.uid, number: user.phoneNumber!, latitude: latitude, longitude: longitude, address: address);
+                    }
 
                     //navigate to Home age after login.
                     if(user!=null){
                       Navigator.of(context).pop();
-
                       //dont want come back to welcome page after login
                       Navigator.pushReplacementNamed(context, HomeScreen.id);
                     }else{
@@ -123,10 +127,22 @@ class AuthProvider with ChangeNotifier {
   }
 
   // ignore: unused_element
-  void _createUser({required String id, required String number}){
+  void _createUser({required String id, required String number, double? latitude, double? longitude, String? address}){
     _userServices.createUserData({
       'id' : id,
       'number' : number,
+      'latitude' : latitude,
+      'longitude' : longitude,
+      'address' : address,
+    });
+  }
+  void updateUser({required String id, required String number, double? latitude, double? longitude, String? address}){
+    _userServices.updateUserData({
+      'id' : id,
+      'number' : number,
+      'latitude' : latitude,
+      'longitude' : longitude,
+      'address' : address,
     });
   }
 }
