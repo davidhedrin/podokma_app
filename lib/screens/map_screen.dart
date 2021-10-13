@@ -6,6 +6,7 @@ import 'package:podokma_ecom/providers/location_provider.dart';
 import 'package:podokma_ecom/screens/homeScreen.dart';
 import 'package:podokma_ecom/screens/login_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({Key? key}) : super(key: key);
@@ -88,6 +89,12 @@ class _MapScreenState extends State<MapScreen> {
                 height: 50,
                 margin: EdgeInsets.only(bottom: 50),
                 child: Image.asset('images/marker.png', color: Colors.blue),
+              ),
+            ),
+            Center(
+              child: SpinKitRipple(
+                color: Colors.blue,
+                size: 100.0,
               ),
             ),
             Positioned(
