@@ -11,21 +11,29 @@ class AuthProvider with ChangeNotifier {
   late String verificationId;
   String error = '';
   UserServices _userServices = UserServices();
+  bool loading = false;
 
   Future<void> verifyPhone(BuildContext context, String number) async {
+    this.loading = true;
+    notifyListeners();
     final PhoneVerificationCompleted verificationCompleted =
         (PhoneAuthCredential credential) async {
+      this.loading = false;
+      notifyListeners();
       await _auth.signInWithCredential(credential);
     };
 
     final PhoneVerificationFailed verificationFailed =
         (FirebaseAuthException e) {
+      this.loading = false;
       print(e.code);
+      this.error = e.toString();
+      notifyListeners();
     };
 
     final PhoneCodeSent smsOtpSend = (String verId, int? resendToken) async {
       this.verificationId = verId;
-
+      //open dialog to enter OTP
       smsOtpDialog(context, number);
     };
 
@@ -40,6 +48,8 @@ class AuthProvider with ChangeNotifier {
         },
       );
     } catch (e) {
+      this.error = e.toString();
+      notifyListeners();
       print(e);
     }
   }

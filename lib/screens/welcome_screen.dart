@@ -5,9 +5,14 @@ import 'package:podokma_ecom/screens/map_screen.dart';
 import 'package:podokma_ecom/screens/onboard_screen.dart';
 import 'package:provider/provider.dart';
 
-class WelcomeScreen extends StatelessWidget {
+class WelcomeScreen extends StatefulWidget {
   static const String id = 'welcome-screen';
 
+  @override
+  State<WelcomeScreen> createState() => _WelcomeScreenState();
+}
+
+class _WelcomeScreenState extends State<WelcomeScreen> {
   @override
   Widget build(BuildContext context) {
 
@@ -20,7 +25,7 @@ class WelcomeScreen extends StatelessWidget {
       showModalBottomSheet(
         context : context,
         builder: (context) => StatefulBuilder(
-          builder: (context, StateSetter myState){
+          builder: (BuildContext context, StateSetter myState){
             return Container(
               child: Padding(
                 padding: const EdgeInsets.all(20.0),
@@ -70,14 +75,18 @@ class WelcomeScreen extends StatelessWidget {
                             // ignore: deprecated_member_use
                             child: FlatButton(
                               onPressed: (){
+                                myState((){
+                                  auth.loading = true;
+                                });
                                 String number = '+62${_phoneNumberController.text}';
                                 auth.verifyPhone(context, number).then((value){
                                   _phoneNumberController.clear();
                                 });
                               },
                               color: _validPhoneNumber ? Theme.of(context).primaryColor : Colors.grey,
-                              child: Text(_validPhoneNumber ? 'Continue' : 'Enter Phone Number', style: TextStyle(color: Colors.white),),
-
+                              child: auth.loading ? CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              ) : Text(_validPhoneNumber ? 'Continue' : 'Enter Phone Number', style: TextStyle(color: Colors.white),),
                             ),
                           ),
                         ),
@@ -117,17 +126,28 @@ class WelcomeScreen extends StatelessWidget {
                 ),
                 // ignore: deprecated_member_use
                 FlatButton(
-                  child: Text(
+                  child: locationData.loading ? CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ) : Text(
                     'Set Delivery Location',
                     style: TextStyle(color: Colors.white),
                   ),
                   color: Colors.blue,
                   onPressed: () async {
+                    setState(() {
+                      locationData.loading = true;
+                    });
                     await locationData.getCurrentPosition();
                     if(locationData.permissionAllowed==true){
                       Navigator.pushReplacementNamed(context, MapScreen.id);
+                      setState(() {
+                        locationData.loading = false;
+                      });
                     }else{
                       print('Permission not allowed');
+                      setState(() {
+                        locationData.loading = false;
+                      });
                     }
                   },
                 ),
