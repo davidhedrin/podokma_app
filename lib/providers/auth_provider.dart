@@ -135,6 +135,7 @@ class AuthProvider with ChangeNotifier {
       'longitude' : longitude,
       'address' : address,
     });
+    this.loading = false;
   }
   void updateUser({required String id, required String number, double? latitude, double? longitude, String? address}){
     _userServices.updateUserData({
