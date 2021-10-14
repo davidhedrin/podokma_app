@@ -75,21 +75,21 @@ class _LoginScreenState extends State<LoginScreen> {
                           onPressed: (){
                             setState((){
                               auth.loading = true;
+                              auth.screen = 'MapScreen';
+                              auth.latitude = locationData.latitude;
+                              auth.longitude = locationData.longitude;
+                              auth.address = locationData.selectedAddress.addressLine;
                             });
                             String number = '+62${_phoneNumberController.text}';
                             auth.verifyPhone(
                               context : context,
                               number : number,
-                              latitude: locationData.latitude,
-                              longitude: locationData.longitude,
-                              address: locationData.selectedAddress.addressLine,
                             ).then((value){
                               _phoneNumberController.clear();
                               setState(() {
                                 auth.loading = false;
                               });
                             });
-                            Navigator.pushNamed(context, HomeScreen.id);
                           },
                           color: _validPhoneNumber ? Theme.of(context).primaryColor : Colors.grey,
                           child: auth.loading ? CircularProgressIndicator(

@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:podokma_ecom/providers/location_provider.dart';
 import 'package:podokma_ecom/screens/homeScreen.dart';
+import 'package:podokma_ecom/screens/map_screen.dart';
 import 'package:podokma_ecom/services/user_services.dart';
 
 class AuthProvider with ChangeNotifier {
@@ -14,8 +15,11 @@ class AuthProvider with ChangeNotifier {
   UserServices _userServices = UserServices();
   bool loading = false;
   LocationProvider locationData = LocationProvider();
+  String? screen;
+  double? latitude, longitude;
+  String? address;
 
-  Future<void> verifyPhone({required BuildContext context, required String number, double? latitude, double? longitude, String? address}) async {
+  Future<void> verifyPhone({required BuildContext context, required String number}) async {
     this.loading = true;
     notifyListeners();
     final PhoneVerificationCompleted verificationCompleted =
@@ -36,7 +40,7 @@ class AuthProvider with ChangeNotifier {
     final PhoneCodeSent smsOtpSend = (String verId, int? resendToken) async {
       this.verificationId = verId;
       //open dialog to enter OTP
-      smsOtpDialog(context, number, latitude, longitude, address);
+      smsOtpDialog(context, number);
     };
 
     try {
@@ -45,18 +49,19 @@ class AuthProvider with ChangeNotifier {
         verificationCompleted: verificationCompleted,
         verificationFailed: verificationFailed,
         codeSent: smsOtpSend,
-        codeAutoRetrievalTimeout: (String verId){
+        codeAutoRetrievalTimeout: (String verId) {
           this.verificationId = verId;
         },
       );
     } catch (e) {
       this.error = e.toString();
+      this.loading = false;
       notifyListeners();
       print(e);
     }
   }
 
-  Future<void> smsOtpDialog(BuildContext context, String number, double? latitude, double? longitude, String? address) async {
+  Future<void> smsOtpDialog(BuildContext context, String number) async {
     return showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -88,62 +93,96 @@ class AuthProvider with ChangeNotifier {
               // ignore: deprecated_member_use
               FlatButton(
                 onPressed: () async {
-                  try{
+                  try {
                     PhoneAuthCredential credential =
-                    PhoneAuthProvider.credential(
+                        PhoneAuthProvider.credential(
                       verificationId: verificationId,
                       smsCode: smsOtp,
                     );
 
-                    final User? user =  (await _auth.signInWithCredential(credential)).user;
-                    if(locationData.selectedAddress!=null){
-                      updateUser(id: user!.uid, number: user.phoneNumber!, latitude: locationData.latitude, longitude: locationData.longitude, address: locationData.selectedAddress.addressLine);
-                    }else{
-                      //create user data to firebase after success register
-                      _createUser(id: user!.uid, number: user.phoneNumber!, latitude: latitude, longitude: longitude, address: address);
-                    }
+                    final User? user =
+                        (await _auth.signInWithCredential(credential)).user;
 
-                    //navigate to Home age after login.
-                    if(user!=null){
-                      Navigator.of(context).pop();
-                      //dont want come back to welcome page after login
-                      Navigator.pushReplacementNamed(context, HomeScreen.id);
-                    }else{
-                      print('login Failed');
+                    if (user != null) {
+                      this.loading = false;
+                      notifyListeners();
+
+                      _userServices.getUserById(user.uid).then((snapShot) {
+                        if (snapShot.exists) {
+                          //if user data already exists
+                          if (this.screen == 'Login') {
+                            //check user data already in database,
+                            //if exists data will update or create new
+                            Navigator.pushReplacementNamed(
+                                context, HomeScreen.id);
+                          } else {
+                            //need to update selected address
+                            print('${locationData.latitude} : ${locationData.longitude}');
+                            updateUser(id: user.uid, number: user.phoneNumber!);
+                            Navigator.pushReplacementNamed(
+                                context, HomeScreen.id);
+                          }
+                        } else {
+                          //if user data does not exists,
+                          //will create new data in database
+                          _createUser(id: user.uid, number: user.phoneNumber!);
+                          Navigator.pushReplacementNamed(
+                              context, HomeScreen.id);
+                        }
+                      });
+                    } else {
+                      print('Login failed');
                     }
-                  }catch(e){
+                  } catch (e) {
                     this.error = 'Invalid OTP';
                     notifyListeners();
                     print(e.toString());
                     Navigator.of(context).pop();
                   }
                 },
-                child: Text('Done', style: TextStyle(color: Theme.of(context).primaryColor),),
+                child: Text(
+                  'Done',
+                  style: TextStyle(color: Theme.of(context).primaryColor),
+                ),
               ),
             ],
           );
-        }
-    );
+        }).whenComplete(() {
+      this.loading = false;
+      notifyListeners();
+    });
   }
 
   // ignore: unused_element
-  void _createUser({required String id, required String number, double? latitude, double? longitude, String? address}){
+  void _createUser({required String id, required String number}) {
     _userServices.createUserData({
-      'id' : id,
-      'number' : number,
-      'latitude' : latitude,
-      'longitude' : longitude,
-      'address' : address,
+      'id': id,
+      'number': number,
+      'latitude': this.latitude,
+      'longitude': this.longitude,
+      'address': this.address,
     });
     this.loading = false;
+    notifyListeners();
   }
-  void updateUser({required String id, required String number, double? latitude, double? longitude, String? address}){
-    _userServices.updateUserData({
-      'id' : id,
-      'number' : number,
-      'latitude' : latitude,
-      'longitude' : longitude,
-      'address' : address,
-    });
+
+  Future<bool> updateUser(
+      {required String id,
+      required String number}) async {
+    try{
+      _userServices.updateUserData({
+        'id': id,
+        'number': number,
+        'latitude': this.latitude,
+        'longitude': this.longitude,
+        'address': this.address,
+      });
+      this.loading = false;
+      notifyListeners();
+      return true;
+    }catch(e){
+      print('Error $e');
+      return false;
+    }
   }
 }

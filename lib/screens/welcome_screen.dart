@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:podokma_ecom/providers/auth_provider.dart';
 import 'package:podokma_ecom/providers/location_provider.dart';
@@ -79,7 +80,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                   auth.loading = true;
                                 });
                                 String number = '+62${_phoneNumberController.text}';
-                                auth.verifyPhone(context: context, number: number, longitude: null, latitude: null, address: null).then((value){
+                                auth.verifyPhone(context: context, number: number).then((value){
                                   _phoneNumberController.clear();
                                 });
                               },
@@ -98,7 +99,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             );
           },
         ),
-      );
+      ).whenComplete((){
+        setState(() {
+          auth.loading = false;
+          _phoneNumberController.clear();
+        });
+      });
     }
 
     final locationData = Provider.of<LocationProvider>(context, listen: false);
@@ -137,6 +143,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     setState(() {
                       locationData.loading = true;
                     });
+
                     await locationData.getCurrentPosition();
                     if(locationData.permissionAllowed==true){
                       Navigator.pushReplacementNamed(context, MapScreen.id);
@@ -167,6 +174,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     ),
                   ),
                   onPressed: () {
+                    setState(() {
+                      auth.screen = 'Login';
+                    });
                     showBottomSheet(context);
                   },
                 ),
