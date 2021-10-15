@@ -168,7 +168,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         TextSpan(
                           text: 'Login',
                           style: TextStyle(
-                              fontWeight: FontWeight.bold, color: Colors.black),
+                              fontWeight: FontWeight.bold, color: Colors.blue),
                         ),
                       ],
                     ),
