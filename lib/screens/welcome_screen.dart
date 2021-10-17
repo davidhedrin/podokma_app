@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:podokma_ecom/providers/auth_provider.dart';
 import 'package:podokma_ecom/providers/location_provider.dart';

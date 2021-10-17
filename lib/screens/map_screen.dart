@@ -134,6 +134,8 @@ class _MapScreenState extends State<MapScreen> {
                           // ignore: deprecated_member_use
                           child: FlatButton(
                             onPressed: (){
+                              //save address to shared preferences
+                              locationData.savePrefs();
                               if(_loggedIn==false){
                                 Navigator.pushNamed(context, LoginScreen.id);
                               }else{
@@ -145,11 +147,8 @@ class _MapScreenState extends State<MapScreen> {
                                 _auth.updateUser(
                                   id: user!.uid,
                                   number: user!.phoneNumber!,
-                                ).then((value){
-                                  if(value == true){
-                                    Navigator.pushNamed(context, HomeScreen.id);
-                                  }
-                                });
+                                );
+                                Navigator.pushNamed(context, HomeScreen.id);
                               }
                             },
                             color: _locating ? Colors.grey : Theme.of(context).primaryColor,

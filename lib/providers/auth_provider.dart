@@ -166,23 +166,15 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> updateUser(
-      {required String id,
-      required String number}) async {
-    try{
-      _userServices.updateUserData({
-        'id': id,
-        'number': number,
-        'latitude': this.latitude,
-        'longitude': this.longitude,
-        'address': this.address,
-      });
-      this.loading = false;
-      notifyListeners();
-      return true;
-    }catch(e){
-      print('Error $e');
-      return false;
-    }
+  void updateUser({required String id, required String number}){
+    _userServices.updateUserData({
+      'id': id,
+      'number': number,
+      'latitude': this.latitude,
+      'longitude': this.longitude,
+      'address': this.address,
+    });
+    this.loading = false;
+    notifyListeners();
   }
 }
